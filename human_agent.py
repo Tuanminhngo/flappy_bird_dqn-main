@@ -9,7 +9,6 @@ of 2025. Public distribution of this source code is strictly forbidden.
 """
 import pygame
 
-
 class HumanAgent:
     def __init__(self, show_screen=False):
         self.show_screen = show_screen

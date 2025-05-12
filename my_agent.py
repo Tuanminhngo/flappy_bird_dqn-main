@@ -4,7 +4,7 @@ from pytorch_mlp import MLPRegression
 import argparse
 from console import FlappyBirdEnv
 
-STUDENT_ID = 'a1234567'
+STUDENT_ID = 'a1869387'
 DEGREE = 'UG'  # or 'PG'
 
 

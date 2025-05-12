@@ -16,9 +16,9 @@ from typing import List
 
 class MLPRegression(nn.Module):
     def __init__(self, input_dim: int,
-                 output_dim: int,
-                 hidden_dim: List[int] = (200, 500, 100),
-                 learning_rate: float = 0.001):
+                output_dim: int,
+                hidden_dim: List[int] = (200, 500, 100),
+                learning_rate: float = 0.001):
         """
         A simple MLP regression model implemented using PyTorch. This class by default uses the Adam optimizer and the
         Mean Square Error loss function to train the regression model. If you are advanced user who understand what they
