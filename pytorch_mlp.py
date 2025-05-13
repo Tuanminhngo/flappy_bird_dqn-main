@@ -62,7 +62,7 @@ class MLPRegression(nn.Module):
             X: a batch of input data in the shape of (N, D), N is the batch size, D is the number of features of X
             Y: the corresponding target in the shape of (N, output_dim), output_dim notes the number of model outputs
             W: binary weight matrix in the shape of (N, output_dim), W determines which target values in the target tensor
-               should be trained towards during the training.
+            should be trained towards during the training.
 
         Returns:
             None
