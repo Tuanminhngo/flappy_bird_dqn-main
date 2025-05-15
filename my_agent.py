@@ -1,4 +1,4 @@
-from random import random
+import random
 import numpy as np
 import pygame
 from pytorch_mlp import MLPRegression
@@ -37,79 +37,60 @@ class MyAgent:
         if load_model_path:
             self.load_model(load_model_path)
 
-    def choose_action(self, st, A):
-        # Build state representation φ_t from current state s_t
-        phi_t = self.build_state(st)
+    def build_state(self, state):  
+        """
+        Build the state representation φ_t from the current state s_t.
+        Args:
+            state: the current state s_t
 
-        if self.mode == 'train':
-            if random.random() < self.epsilon:
-                # Exploration: choose random action
-                at = random.choice(A)
-            else:
-                # Exploitation: choose action with highest Q-value
-                q_values = self.network.predict(phi_t)
-                at = A[np.argmax(q_values)]
+        Returns:
+            φ_t: the state representation φ_t
+        """
+        # Convert state to numpy array and reshape to (1, 8)
+        phi_t = np.array(state).reshape(1, -1)
+        return phi_t
 
-            # Store partial transition (phi_t, a_t, r_t=None, q_t+1=None)
-            self.storage.append((phi_t, at, None, None))
+def choose_action(self, state, action_table):
+    # Convert action_table to a list in case it's a dict
+    if isinstance(action_table, dict):
+        action_list = list(action_table.values())
+    else:
+        action_list = action_table
 
-        elif self.mode == 'eval':
-            # Always choose the best action
-            q_values = self.network.predict(phi_t)
-            at = A[np.argmax(q_values)]
+    # Build state representation φ_t from current state s_t
+    phi_t = self.build_state(state)
 
-        return at
-
-    def receive_after_action_observation(self, st1, A):
-        if self.mode != 'train':
-            return  # Do nothing in evaluation mode
-
-        # Step 1: Build φ_{t+1}
-        phi_t1 = self.build_state(st1)
-
-        # Step 2: Compute reward
-        rt = self.reward(st1, phi_t1)
-
-        # Step 3: Compute q_{t+1} using Q_f (target network)
-        is_terminal = self.is_terminal(st1)
-        if is_terminal:
-            qt1 = 0
+    if self.mode == 'train':
+        if random.random() < self.epsilon:
+            # Exploration: choose random action
+            at = random.choice(action_list)
         else:
-            q_values_t1 = self.network2.predict(phi_t1)
-            qt1 = np.max(q_values_t1)
+            # Exploitation: choose action with highest Q-value
+            q_values = self.network.predict(phi_t)
+            at = action_list[np.argmax(q_values)]
 
-        # Step 4: Update last transition in D
-        phi_t, at, _, _ = self.storage[-1]
-        self.storage[-1] = (phi_t, at, rt, qt1)
+        # Store partial transition (phi_t, a_t, r_t=None, q_t+1=None)
+        self.storage.append((phi_t, at, None, None))
 
-        # Step 5: Sample minibatch and train
-        if len(self.storage) < self.n:
-            return  # Not enough samples to train
+    elif self.mode == 'eval':
+        # Always choose the best action
+        q_values = self.network.predict(phi_t)
+        at = action_list[np.argmax(q_values)]
 
-        minibatch = random.sample(self.storage, self.n)
-        X, Y, W = [], [], []
+    return at
 
-        for phi_j, a_j, r_j, q_j1 in minibatch:
-            # w_j = one-hot vector for action a_j
-            w_j = np.zeros(len(A))
-            w_j[a_j] = 1
+def receive_after_action_observation(self, state: dict, action_table: dict) -> None:
+        """
+        This function should be called to notify the agent of the post-action observation.
+        Args:
+            state: post-action state representation (the state dictionary from the game environment)
+            action_table: the action code dictionary
+        Returns:
+            None
+        """
+        # following pseudocode to implement this function
 
-            # y_j = r_j + γ * q_{j+1}
-            y_j = r_j + self.discount_factor * q_j1
-
-            # Add to minibatch
-            X.append(phi_j)
-            Y.append(y_j)
-            W.append(w_j)
-
-        # Step 6: Train network Q on one batch
-        self.network.fit(X, Y, W)
-
-        # Step 7: Optional epsilon decay
-        if self.epsilon > 0.01:
-            self.epsilon *= 0.995
-
-    def save_model(self, path: str = 'my_model.ckpt'):
+def save_model(self, path: str = 'my_model.ckpt'):
         """
         Save the MLP model. Unless you decide to implement the MLP model yourself, do not modify this function.
 
@@ -121,7 +102,7 @@ class MyAgent:
         """
         self.network.save_model(path=path)
 
-    def load_model(self, path: str = 'my_model.ckpt'):
+def load_model(self, path: str = 'my_model.ckpt'):
         """
         Load the MLP model weights.  Unless you decide to implement the MLP model yourself, do not modify this function.
         Args:
@@ -132,8 +113,8 @@ class MyAgent:
         """
         self.network.load_model(path=path)
 
-    @staticmethod
-    def update_network_model(net_to_update: MLPRegression, net_as_source: MLPRegression):
+@staticmethod
+def update_network_model(net_to_update: MLPRegression, net_as_source: MLPRegression):
         """
         Update one MLP model's model parameter by the parameter of another MLP model.
         Args:
@@ -144,6 +125,7 @@ class MyAgent:
             None
         """
         net_to_update.load_state_dict(net_as_source.state_dict())
+
 
 
 if __name__ == '__main__':
